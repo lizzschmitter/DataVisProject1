@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">	
+		<script type="text/javascript" src="d3.min.js"></script>	
+		<title>Project 1</title>
+	</head>
+    
+    <body>
+        
+        <div id="container">
+            
+            <div class="column">
+                <img id="banner" src="images/banner.png" />
+            </div>
+            
+            <div class="column">
+            
+            <p class="text"> The NFC North, affectionately known as the &#8220;black and blue division&#8221;, is comprised of the Green Bay Packers, Minnesota Vikings, Chicago Bears, and Detroit Lions. With the most loyal fan base in football, it’s no surprise the Green Bay Packers sit at the top in popularity each month. All that popularity comes at a price, however. Season tickets have been sold out 1960, and the estimated wait time to get some? 40 years. The Minnesota Vikings franchise was created in 1960, with the first season being in 1961. Before the Metrodome was flatened to make room for the new U.S. Bank Stadium, it was the second oldest NFL Stadium, and it also had the smallest footprint at 900,000 square feet compared to the NFL average of 1.6 million square feet. Now we move on to the Chicago Bears, originally known as the Decatur Staleys, in Decatur, Illinois. The franchise moved to Chicago in 1921 and their name was changed to the Chicago Stanleys. The next year the name was changed yet again to what we know them as today, the Chicago Bears. The original Soldier Field was designed in 1919 as a WWI memorial, and was finished in 1924, however the bears did not call it their home field until 1971. The Detroit Lions got their start as the Portsmouth Spartans of Portsmouth, Ohio in 1930, and moved to Detroit in 1934. The Lions have a long history of being one of the worst teams in the NFL, and this is only cemented more as they are the only team in the NFC to never make a Superbowl appearance. </p>
+               
+               </div>
+        
+        
+        </div>
+        
+        <div id="border"></div>
+        
+    
+    </body>
+
+	<style>
+        
+        #container {
+            width: 960px;
+        }
+        
+        .column {
+            width: 960px;
+            text-align: center;
+            
+        }
+        
+        .text {
+            font-family: Avenir;
+            width: 960px;
+            position: absolute;
+            left: 50%;
+            margin-left: -450px;
+            
+        }
+        
+		#chart {
+			width: 1000px;
+			height: 500px;
+			margin: auto;
+            position: absolute;
+            left: 230px;
+            top: 575px;
+		}
+        
+        #border {
+            width: 935spx;
+            height: 400px;
+            border: solid white 1px;
+            position: absolute;
+            left: 225px;
+            top: 575px;
+        }
+ 
+		path { 
+  			stroke-width: 2;
+  			fill: none;
+		}
+ 
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: grey;
+			stroke-width: 1;
+		}
+
+		.axis text {
+			font: 10px Helvetica;
+			fill: gray;
+		}
+        
+        .tooltip {
+            position: relative;
+            width: 100px;
+            height: 28px;
+            font-family: Avenir;
+            text-align: center;
+            color: white;
+            pointer-events: none;
+        }
+        
+        .packers {
+            fill: #05D0FF;
+            -webkit-transition: 0.5s;
+        }
+        
+        .packers:hover {
+            r: 80px;
+            fill: #FFB612;
+            -webkit-transition: r 0.5s;
+        }
+        
+        .vikings {
+            fill: #05D0FF;
+            -webkit-transition: 0.5s;
+        }
+        
+        .vikings:hover {
+            r: 80px;
+            fill: #3B0160;
+            -webkit-transition: r 0.5s;
+        }
+        
+        .bears {
+            fill: #05D0FF;
+            -webkit-transition: 0.5s;
+        }
+        
+        .bears:hover {
+            r: 80px;
+            fill: #03202F;
+            -webkit-transition: r 0.5s;
+        } 
+        
+        .lions {
+            fill: #05D0FF;
+            -webkit-transition: 0.5s;
+        }
+        
+        .lions:hover {
+            r: 80px;
+            fill: #006DB0;
+            -webkit-transition: r 0.5s;
+        }
+         
+
+	</style>
+
+	<body>
+
+		<div id="chart"></div>
+
+	</body>
+
+	<script type="text/javascript">
+        
+    // 1 : Define the dataset
+        
+        d3.csv("data/nfl.csv", function(error, data) {
+            
+    // 2 : Parse the dataset
+            
+        var parseDate = d3.time.format("%m/%d/%y").parse;
+          data.forEach(function(d) {
+		  	d.date = parseDate(d.date);
+		  	d.packers = +d.packers;
+            d.vikings = +d.vikings;
+            d.bears = +d.bears;
+            d.lions = +d.lions;
+        });
+            
+    // 3: define the chart's scale
+            
+    var padding = {top: 70, right: 100, bottom: 20, left: 40};
+    var w = 1000 - padding.left - padding.right;
+    var h = 400 - padding.top - padding.bottom;
+
+    var xScale = d3.time.scale()
+		.domain(d3.extent(data, function(d) { return d.date; }))
+		.range([0, w]);
+
+    var yScale = d3.scale.linear()
+		.domain([0, d3.max(data, function(d) {return d.packers;})])
+		.range([h, 0]);  
+    
+            
+    
+        
+    // 4: Establish the drawing area
+               
+    var svg = d3.select("#chart")
+                .append("svg")
+                .attr("width", w + padding.left + padding.right)
+                .attr("height", h + padding.top + padding.bottom)
+                .append("g")
+                .attr("transform", "translate(" + padding.left + "," + padding.top +")");
+        
+    // 5: Draw svg elements
+
+    // packers line draw
+    var packersline = d3.svg.line()
+            .x(function(d) {return xScale(d.date);})
+            .y(function(d) {return yScale(+d.packers);});
+            
+        svg.append("path")
+            .attr("stroke", "#247506")
+            .attr("d", packersline(data));
+            
+    var vikingsline = d3.svg.line()
+            .x(function(d) {return xScale(d.date);})
+            .y(function(d) {return yScale(+d.vikings);});
+            
+        svg.append("path")
+            .attr("stroke", "#F0BF00")
+            .attr("d", vikingsline(data));
+            
+    var bearsline = d3.svg.line()
+            .x(function(d) {return xScale(d.date);})
+            .y(function(d) {return yScale(+d.bears);});
+            
+        svg.append("path")
+            .attr("stroke", "#DD4814")
+            .attr("d", bearsline(data));
+    
+    var lionsline = d3.svg.line()
+            .x(function(d) {return xScale(d.date);})
+            .y(function(d) {return yScale(+d.lions);});
+            
+        svg.append("path")
+            .attr("stroke", "#C5C7CF")
+            .attr("d", lionsline(data));
+            
+   
+        
+        // Start of Interactive D3 Components 
+            
+        // Packers Interactive Component
+        
+        var tooltip = d3.select("#chart").append("div")
+   			.attr("class", "tooltip")
+    		.style("opacity", 0);
+
+		svg.selectAll("dots_packers")
+			.data(data)
+			.enter()
+			.append("circle")
+			.filter(function(d) { // filter function
+				return d.select == 1 // open candidates.csv and look at column "c_select". Only values with "1" gets selected to appear on chart.
+			})
+			.attr("cx", function(d) {
+				return xScale(d.date); 
+			})
+			.attr("cy", function(d) {
+				return yScale(d.packers); 
+			})
+			.attr("class","packers")
+			.attr("cx", function(d) {
+				return xScale(d.date);
+			})
+			.attr("cy", function(d) {
+				return yScale(d.packers);
+			})
+			.attr("r", function(d) {
+				return 5;
+			})
+			.on("mouseover", function(d) {
+
+				this.parentNode.appendChild(this);
+
+          		tooltip.transition()
+                .duration(200)
+                .style("opacity", 1);
+          		
+          		tooltip.html("Popularity: " + d.packers + "<br> Green Bay <br> Packers")
+          		.style("left", xScale(d.date) + -10 + "px")
+                .style("top", yScale(d.packers) + -450 + "px");
+
+      		})
+      		.on("mouseout", function(d) {
+          		tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      		});
+            
+        // Vikings Interactive Component
+            
+            var tooltip = d3.select("#chart").append("div")
+   			.attr("class", "tooltip")
+    		.style("opacity", 0);
+
+		svg.selectAll("dots_vikings")
+			.data(data)
+			.enter()
+			.append("circle")
+			.filter(function(d) { // filter function
+				return d.select == 2 // open candidates.csv and look at column "c_select". Only values with "1" gets selected to appear on chart.
+			})
+			.attr("cx", function(d) {
+				return xScale(d.date); 
+			})
+			.attr("cy", function(d) {
+				return yScale(d.vikings); 
+			})
+			.attr("class","vikings")
+			.attr("cx", function(d) {
+				return xScale(d.date);
+			})
+			.attr("cy", function(d) {
+				return yScale(d.vikings);
+			})
+			.attr("r", function(d) {
+				return 5;
+			})
+			.on("mouseover", function(d) {
+
+				this.parentNode.appendChild(this);
+
+          		tooltip.transition()
+                .duration(200)
+                .style("opacity", 1);
+          		
+          		tooltip.html("Popularity: " + d.vikings + "<br> Minnesota <br> Vikings")
+          		.style("left", xScale(d.date) + -10 + "px")
+                .style("top", yScale(d.vikings) + -440 + "px");
+
+      		})
+      		.on("mouseout", function(d) {
+          		tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      		});
+            
+        // Bears Interactive Component
+            
+            var tooltip = d3.select("#chart").append("div")
+   			.attr("class", "tooltip")
+    		.style("opacity", 0);
+
+		svg.selectAll("dots_bears")
+			.data(data)
+			.enter()
+			.append("circle")
+			.filter(function(d) { // filter function
+				return d.select == 3 // open candidates.csv and look at column "c_select". Only values with "1" gets selected to appear on chart.
+			})
+			.attr("cx", function(d) {
+				return xScale(d.date); 
+			})
+			.attr("cy", function(d) {
+				return yScale(d.bears); 
+			})
+			.attr("class","bears")
+			.attr("cx", function(d) {
+				return xScale(d.date);
+			})
+			.attr("cy", function(d) {
+				return yScale(d.bears);
+			})
+			.attr("r", function(d) {
+				return 5;
+			})
+			.on("mouseover", function(d) {
+
+				this.parentNode.appendChild(this);
+
+          		tooltip.transition()
+                .duration(200)
+                .style("opacity", 1);
+          		
+          		tooltip.html("Popularity: " + d.bears + "<br> Chicago <br> Bears")
+          		.style("left", xScale(d.date) + -10 + "px")
+                .style("top", yScale(d.bears) + -440 + "px");
+
+      		})
+      		.on("mouseout", function(d) {
+          		tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      		});
+            
+        // Lions Interactive Component
+            
+            var tooltip = d3.select("#chart").append("div")
+   			.attr("class", "tooltip")
+    		.style("opacity", 0);
+
+		svg.selectAll("dots_lions")
+			.data(data)
+			.enter()
+			.append("circle")
+			.filter(function(d) { // filter function
+				return d.select == 4 // open candidates.csv and look at column "c_select". Only values with "1" gets selected to appear on chart.
+			})
+			.attr("cx", function(d) {
+				return xScale(d.date); 
+			})
+			.attr("cy", function(d) {
+				return yScale(d.lions); 
+			})
+			.attr("class","lions")
+			.attr("cx", function(d) {
+				return xScale(d.date);
+			})
+			.attr("cy", function(d) {
+				return yScale(d.lions);
+			})
+			.attr("r", function(d) {
+				return 5;
+			})
+			.on("mouseover", function(d) {
+
+				this.parentNode.appendChild(this);
+
+          		tooltip.transition()
+                .duration(200)
+                .style("opacity", 1);
+          		
+          		tooltip.html("Popularity: " + d.lions + "<br> Detroit <br> Lions")
+          		.style("left", xScale(d.date) + -10 + "px")
+                .style("top", yScale(d.lions) + -440 + "px");
+
+      		})
+      		.on("mouseout", function(d) {
+          		tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      		});
+        
+        
+            
+    // 6: Set axes
+            
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom")
+        .ticks(5);
+
+    svg.append("g").call(xAxis)	
+	    .attr("class", "x axis")
+	    .attr("transform", "translate(0," + h + ")");
+
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+	    .orient("left")
+        .ticks(5);
+
+    svg.append("g").call(yAxis)	
+	    .attr("class", "y axis");
+        
+    
+        });
+    
+    </script>
+
+</html>
